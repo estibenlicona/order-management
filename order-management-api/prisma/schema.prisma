@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Cliente {
+  id             String   @id @default(uuid()) @db.Uuid
+  identificacion String   @unique(map: "uk_clientes_identificacion") @db.VarChar(20)
+  nombre         String   @db.VarChar(200)
+  direccion      String?
+  telefono       String?  @db.VarChar(30)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  pedidos        Pedido[]
+
+  @@map("clientes")
+}
+
+model Medicamento {
+  id         String   @id @default(uuid()) @db.Uuid
+  codigo     String   @unique(map: "uk_medicamentos_codigo") @db.VarChar(80)
+  nombre     String   @db.VarChar(400)
+  tipoMedica String?  @map("tipo_medica") @db.VarChar(20)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  pedidos    Pedido[]
+
+  @@map("medicamentos")
+}
+
+model Pedido {
+  id                String         @id @default(uuid()) @db.Uuid
+  formula           String         @unique(map: "uk_pedidos_formula") @db.VarChar(100)
+  clienteId         String         @map("cliente_id") @db.Uuid
+  medicamentoId     String         @map("medicamento_id") @db.Uuid
+  fecha             DateTime       @db.Date
+  cantidadPendiente Int            @default(0) @map("cantidad_pendiente")
+  cantidadEntregada Int            @default(0) @map("cantidad_entregada")
+  existencia        Int            @default(0)
+  sucursal          String?        @db.VarChar(100)
+  condicionado      Boolean        @default(false)
+  modalidad         String?        @db.VarChar(50)
+  contrato          String?        @db.VarChar(50)
+  clasificacion     String?        @db.VarChar(10)
+  cp                String?        @db.VarChar(80)
+  cl                String?        @db.VarChar(20)
+  createdAt         DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  estados           EstadoPedido[]
+  comentarios       ComentarioPedido[]
+  cliente           Cliente        @relation(fields: [clienteId], references: [id])
+  medicamento       Medicamento    @relation(fields: [medicamentoId], references: [id])
+
+  @@index([clienteId], map: "idx_pedidos_cliente")
+  @@index([medicamentoId], map: "idx_pedidos_medicamento")
+  @@map("pedidos")
+}
+
+model EstadoPedido {
+  id          String    @id @default(uuid()) @db.Uuid
+  pedidoId    String    @map("pedido_id") @db.Uuid
+  estado      String    @db.VarChar(50)
+  fecha       DateTime? @db.Date
+  observacion String?
+  usuario     String?   @db.VarChar(100)
+  usuarioId   String?   @map("usuario_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  pedido      Pedido    @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+
+  @@index([pedidoId], map: "idx_estados_pedido_pedido")
+  @@index([usuarioId], map: "idx_estados_pedido_usuario")
+  @@map("estados_pedido")
+}
+
+model ComentarioPedido {
+  id         String   @id @default(uuid()) @db.Uuid
+  pedidoId   String   @map("pedido_id") @db.Uuid
+  contenido  String
+  usuario    String?  @db.VarChar(100)
+  usuarioId  String?  @map("usuario_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  pedido     Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+
+  @@index([pedidoId], map: "idx_comentarios_pedido_pedido")
+  @@index([usuarioId], map: "idx_comentarios_pedido_usuario")
+  @@map("comentarios_pedido")
+}
+
+model CsvStaging {
+  id                 String   @id @default(uuid()) @db.Uuid
+  batchId            String   @map("batch_id") @db.Uuid
+  rowIndex           Int      @map("row_index")
+  identificacion     String?
+  paciente           String?
+  formula            String?
+  fecha              String?
+  producto           String?
+  codigo             String?
+  estado             String?
+  direccion          String?
+  telefono           String?
+  tipoMedica         String?  @map("tipo_medica")
+  condicionado       String?
+  sucursal           String?
+  modalidad          String?
+  contrato           String?
+  clasificacion      String?
+  cp                 String?
+  cl                 String?
+  pendiente          String?
+  entregado          String?
+  existencia         String?
+  fecha1             String?  @map("fecha_1")
+  observacion1       String?  @map("observacion_1")
+  usuario1           String?  @map("usuario_1")
+  fecha2             String?  @map("fecha_2")
+  observacion2       String?  @map("observacion_2")
+  usuario2           String?  @map("usuario_2")
+  fecha3             String?  @map("fecha_3")
+  observacion3       String?  @map("observacion_3")
+  usuario3           String?  @map("usuario_3")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  ingresoDelProducto String?  @map("ingreso_del_producto")
+
+  @@index([batchId], map: "idx_csv_staging_batch")
+  @@map("csv_staging")
+}

@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"E:\\\\Repos\\\\order-management\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Get-ChildItem *)",
+      "PowerShell(Get-ChildItem -Path \"E:\\\\Repos\\\\order-management\\\\order-management-web\" -Recurse -Force | Select-Object FullName | ForEach-Object { $_.FullName.Replace\\('E:\\\\Repos\\\\order-management\\\\order-management-web\\\\', ''\\) } | Sort-Object)",
+      "PowerShell(npm run *)",
+      "PowerShell(Out-Null *)",
+      "Bash(timeout 8 npm run dev -- --port 5174)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5174/)",
+      "Bash(timeout 8 npm run dev)",
+      "Bash(curl -s http://localhost:3000/api/health)",
+      "Bash(timeout 12 npm run dev)",
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(dir \"E:\\\\Repos\\\\order-management\\\\order-management-api\" /s /b)",
+      "Bash(powershell -Command \"Get-ChildItem -Recurse -Directory -Name | head -30\")",
+      "Bash(npm uninstall *)",
+      "Bash(npx prisma *)",
+      "Bash(Remove-Item *)",
+      "Bash(echo \"exit:$?\")",
+      "Bash(timeout 8 npx ts-node -r tsconfig-paths/register src/server.ts)",
+      "Bash(Select-Object -First 20)",
+      "Bash(Find E:\\\\Repos\\\\order-management\\\\order-management-api\\\\src *)",
+      "Bash(Find \"E:\\\\Repos\\\\order-management\\\\order-management-api\\\\src\" -name \"*.ts\" -type f)",
+      "Bash(Find E:\\\\Repos\\\\order-management\\\\order-management-api\\\\src\\\\infrastructure\\\\database *)",
+      "Bash(Find \"E:\\\\Repos\\\\order-management\\\\order-management-api\" -name \"schema.prisma\" -o -name \"*.env*\")",
+      "Bash(Find E:\\\\Repos\\\\order-management\\\\order-management-api\\\\src\\\\presentation\\\\middleware *)",
+      "Bash(Find \"E:\\\\Repos\\\\order-management\" -path \"*/node_modules\" -prune -o -name \"*.ts\" -o -name \"*.tsx\" -type f)",
+      "Bash(xargs grep -l \"medicamentos\")",
+      "PowerShell(ls E:\\\\Repos\\\\order-management\\\\order-management-api\\\\src -Recurse | Select-Object FullName | Where-Object { $_.FullName -notmatch 'node_modules' })",
+      "Bash(Select-Object Name)",
+      "Bash(Select-Object -First 30)",
+      "PowerShell(ls -Recurse \"E:\\\\Repos\\\\order-management\\\\order-management-api\\\\src\\\\presentation\\\\routes\" -File 2>$null | % {$_.FullName})",
+      "PowerShell(Remove-Item *)",
+      "Bash(npx tsc *)",
+      "PowerShell(Get-Process *)",
+      "Skill(supabase)",
+      "Bash(git add *)"
+    ]
+  }
+}
