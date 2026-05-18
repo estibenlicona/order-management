@@ -37,7 +37,9 @@
       "Bash(npx tsc *)",
       "PowerShell(Get-Process *)",
       "Skill(supabase)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }
