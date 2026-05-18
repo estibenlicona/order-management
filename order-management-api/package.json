@@ -7,8 +7,8 @@
   },
   "scripts": {
     "dev": "nodemon",
-    "build": "tsc -p tsconfig.build.json",
-    "start": "node dist/server.js",
+    "build": "prisma generate && tsc -p tsconfig.build.json",
+    "start": "node -r module-alias/register dist/server.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -20,7 +20,14 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "prepare": "prisma generate"
+  },
+  "_moduleAliases": {
+    "@domain": "dist/domain",
+    "@application": "dist/application",
+    "@infrastructure": "dist/infrastructure",
+    "@presentation": "dist/presentation",
+    "@shared": "dist/shared"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -29,6 +36,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "helmet": "^7.1.0",
+    "module-alias": "^2.3.4",
     "morgan": "^1.10.0",
     "reflect-metadata": "^0.2.2",
     "tsyringe": "^4.8.0",
