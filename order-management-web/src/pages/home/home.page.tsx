@@ -15,6 +15,7 @@ import { KpiCard } from './components/kpi-card';
 import { CriticidadChart } from './components/criticidad-chart';
 import { MensualChart } from './components/mensual-chart';
 import { TopUsuarios } from './components/top-usuarios';
+import { SucursalChart } from './components/sucursal-chart';
 
 function SkeletonBlock({ className }: { className?: string }): JSX.Element {
   return <div className={`animate-pulse rounded-xl bg-muted ${className ?? ''}`} aria-hidden="true" />;
@@ -58,6 +59,7 @@ export function HomePage(): JSX.Element {
           <SkeletonBlock className="col-span-12 h-[320px] lg:col-span-4" />
           <SkeletonBlock className="col-span-12 h-[320px] lg:col-span-8" />
           <SkeletonBlock className="col-span-12 h-[260px]" />
+          <SkeletonBlock className="col-span-12 h-[300px]" />
         </div>
       ) : data !== undefined ? (
         <div className="grid grid-cols-12 gap-4">
@@ -67,7 +69,7 @@ export function HomePage(): JSX.Element {
               value={data.totals.activos}
               Icon={Activity}
               iconClass="bg-warning-subtle text-warning-subtle-foreground ring-warning/15"
-              to="/medicamentos-pendientes"
+              to="/medicamentos-pendientes?filtroEstado=ACTIVO"
               hint={`de ${data.totals.total} en total`}
             />
           </div>
@@ -77,7 +79,7 @@ export function HomePage(): JSX.Element {
               value={data.totals.entregados}
               Icon={CheckCircle2}
               iconClass="bg-success-subtle text-success-subtle-foreground ring-success/15"
-              to="/medicamentos-pendientes"
+              to="/medicamentos-pendientes?filtroEstado=ENTREGADO"
               hint={`de ${data.totals.total} en total`}
             />
           </div>
@@ -96,7 +98,7 @@ export function HomePage(): JSX.Element {
               Icon={AlertTriangle}
               iconClass="bg-destructive-subtle text-destructive-subtle-foreground ring-destructive/15"
               hint="con más de 60 días"
-              to="/medicamentos-pendientes"
+              to="/medicamentos-pendientes?filtroEstado=ACTIVO&orderBy=fecha_asc"
             />
           </div>
 
@@ -123,6 +125,14 @@ export function HomePage(): JSX.Element {
               </p>
             </div>
             <TopUsuarios data={data.topUsuarios} />
+          </Card>
+
+          <Card className="col-span-12 p-5">
+            <div className="mb-3 flex items-baseline justify-between">
+              <h2 className="text-sm font-semibold text-foreground">Por sucursal</h2>
+              <span className="text-xs text-muted-foreground">Clic en barra para ver detalle</span>
+            </div>
+            <SucursalChart data={data.porSucursal} />
           </Card>
         </div>
       ) : null}

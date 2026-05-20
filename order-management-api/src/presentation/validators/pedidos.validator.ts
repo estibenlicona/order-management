@@ -33,4 +33,5 @@ export const GetPedidosQuerySchema = z.object({
     .transform(v => v === 'true'),
   orderBy: z.enum(['createdAt_desc', 'fecha_asc', 'fecha_desc', 'pendiente_desc', 'pendiente_asc']).optional(),
   filtroEstado: z.string().trim().max(50).optional(),
+  sucursal: z.string().trim().max(100).optional(),
 });

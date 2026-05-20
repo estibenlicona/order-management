@@ -40,6 +40,7 @@ export async function getAllPedidos(req: Request, res: Response, next: NextFunct
       ...(parsed.data.soloPendientes === true && { soloPendientes: true }),
       ...(parsed.data.orderBy !== undefined && { orderBy: parsed.data.orderBy }),
       ...(parsed.data.filtroEstado !== undefined && { filtroEstado: parsed.data.filtroEstado }),
+      ...(parsed.data.sucursal !== undefined && { sucursal: parsed.data.sucursal }),
     };
 
     const result = await getAllUseCase.execute(dto);

@@ -9,6 +9,7 @@ export interface PedidoQueryParams {
   readonly soloPendientes?: boolean;
   readonly orderBy?: PedidoOrderBy;
   readonly filtroEstado?: string;
+  readonly sucursal?: string;
 }
 
 export interface PaginatedPedidos {

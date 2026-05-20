@@ -30,10 +30,18 @@ export interface DashboardTopUsuario {
   total: number;
 }
 
+export interface DashboardSucursalEntry {
+  sucursal: string;
+  activos: number;
+  entregados: number;
+  total: number;
+}
+
 export interface DashboardMetrics {
   totals: DashboardTotals;
   criticidad: DashboardCriticidad;
   atendidos: DashboardAtendidos;
   mensual: DashboardMensualEntry[];
   topUsuarios: DashboardTopUsuario[];
+  porSucursal: DashboardSucursalEntry[];
 }

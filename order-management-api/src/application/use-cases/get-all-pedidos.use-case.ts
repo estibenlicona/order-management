@@ -14,6 +14,7 @@ export interface GetPedidosDto {
   readonly soloPendientes?: boolean;
   readonly orderBy?: PedidoOrderBy;
   readonly filtroEstado?: string;
+  readonly sucursal?: string;
 }
 
 export interface PedidoFull extends PedidoWithRelations {
@@ -49,6 +50,7 @@ export class GetAllPedidosUseCase {
       ...(dto.soloPendientes !== undefined && { soloPendientes: dto.soloPendientes }),
       ...(dto.orderBy !== undefined && { orderBy: dto.orderBy }),
       ...(dto.filtroEstado !== undefined && { filtroEstado: dto.filtroEstado }),
+      ...(dto.sucursal !== undefined && { sucursal: dto.sucursal }),
     };
 
     const paginated = await this.pedidoRepo.findPaginated(params);

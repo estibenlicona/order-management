@@ -103,7 +103,7 @@ export class PedidoRepository implements IPedidoRepository {
   }
 
   async findPaginated(params: PedidoQueryParams): Promise<PaginatedPedidos> {
-    const { page, pageSize, search, soloPendientes, orderBy, filtroEstado } = params;
+    const { page, pageSize, search, soloPendientes, orderBy, filtroEstado, sucursal } = params;
     const skip = (page - 1) * pageSize;
 
     // When filtering by latest estado, resolve matching IDs via subquery
@@ -133,6 +133,7 @@ export class PedidoRepository implements IPedidoRepository {
         ],
       }),
       ...(soloPendientes === true && { cantidadPendiente: { gt: 0 } }),
+      ...(sucursal !== undefined && { sucursal }),
     };
 
     const prismaOrderBy = buildOrderBy(orderBy);

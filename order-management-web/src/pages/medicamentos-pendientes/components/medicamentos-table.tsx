@@ -38,14 +38,30 @@ import { CambiarEstadoModal } from './cambiar-estado-modal';
 
 const PAGE_SIZE_OPTIONS: PageSize[] = [10, 20, 50, 100];
 
-type FiltroEstado = 'ACTIVO' | 'todos';
+export type FiltroEstado = 'ACTIVO' | 'ENTREGADO' | 'todos';
 type SortCol = 'fecha' | 'pendiente';
 type SortDir = 'asc' | 'desc';
-type OrderBy = 'fecha_asc' | 'fecha_desc' | 'pendiente_asc' | 'pendiente_desc' | 'createdAt_desc';
+export type OrderBy = 'fecha_asc' | 'fecha_desc' | 'pendiente_asc' | 'pendiente_desc' | 'createdAt_desc';
 
 function toOrderBy(col: SortCol, dir: SortDir): OrderBy {
   if (col === 'fecha') return dir === 'asc' ? 'fecha_asc' : 'fecha_desc';
   return dir === 'desc' ? 'pendiente_desc' : 'pendiente_asc';
+}
+
+function parseOrderBy(ob: OrderBy | undefined): { col: SortCol; dir: SortDir } {
+  switch (ob) {
+    case 'fecha_asc':     return { col: 'fecha',    dir: 'asc' };
+    case 'fecha_desc':    return { col: 'fecha',    dir: 'desc' };
+    case 'pendiente_asc': return { col: 'pendiente', dir: 'asc' };
+    case 'pendiente_desc': return { col: 'pendiente', dir: 'desc' };
+    default:              return { col: 'fecha',    dir: 'asc' };
+  }
+}
+
+interface MedicamentosTableProps {
+  initialFiltroEstado?: FiltroEstado;
+  initialSucursal?: string;
+  initialOrderBy?: OrderBy;
 }
 
 function diasDesde(fecha: string): number {
@@ -113,14 +129,16 @@ const CRITICIDAD_LEGEND = [
   { range: '>60 días', dot: 'bg-destructive' },
 ] as const;
 
-export function MedicamentosTable(): JSX.Element {
+export function MedicamentosTable(props: MedicamentosTableProps = {}): JSX.Element {
+  const initialSort = parseOrderBy(props.initialOrderBy);
   const [inputValue, setInputValue] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<PageSize>(10);
-  const [filtroEstado, setFiltroEstado] = useState<FiltroEstado>('ACTIVO');
-  const [sortCol, setSortCol] = useState<SortCol>('fecha');
-  const [sortDir, setSortDir] = useState<SortDir>('asc');
+  const [filtroEstado, setFiltroEstado] = useState<FiltroEstado>(props.initialFiltroEstado ?? 'ACTIVO');
+  const [sucursal, setSucursal] = useState<string | undefined>(props.initialSucursal);
+  const [sortCol, setSortCol] = useState<SortCol>(initialSort.col);
+  const [sortDir, setSortDir] = useState<SortDir>(initialSort.dir);
   const [selectedPedido, setSelectedPedido] = useState<PedidoFull | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -136,7 +154,7 @@ export function MedicamentosTable(): JSX.Element {
 
   useEffect(() => {
     setPage(1);
-  }, [search, filtroEstado, sortCol, sortDir]);
+  }, [search, filtroEstado, sucursal, sortCol, sortDir]);
 
   function handleSort(col: SortCol): void {
     if (col === sortCol) {
@@ -150,13 +168,14 @@ export function MedicamentosTable(): JSX.Element {
   const orderBy = toOrderBy(sortCol, sortDir);
 
   const { data, isLoading, isPlaceholderData, error } = useQuery({
-    queryKey: ['pedidos', { page, pageSize, search, filtroEstado, orderBy }],
+    queryKey: ['pedidos', { page, pageSize, search, filtroEstado, sucursal, orderBy }],
     queryFn: () =>
       pedidosService.getAll({
         page,
         pageSize,
         ...(search !== '' && { search }),
         ...(filtroEstado !== 'todos' && { filtroEstado }),
+        ...(sucursal !== undefined && { sucursal }),
         orderBy,
       }),
     placeholderData: keepPreviousData,
@@ -211,8 +230,23 @@ export function MedicamentosTable(): JSX.Element {
 
           <div className="inline-flex h-9 items-center gap-1 rounded-lg border border-border bg-muted/40 p-1" role="group" aria-label="Filtrar por estado">
             {filterBtn('ACTIVO', 'Activos')}
+            {filterBtn('ENTREGADO', 'Entregados')}
             {filterBtn('todos', 'Todos')}
           </div>
+
+          {sucursal !== undefined && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground ring-1 ring-inset ring-border">
+              Sucursal: {sucursal}
+              <button
+                type="button"
+                onClick={() => setSucursal(undefined)}
+                aria-label="Quitar filtro de sucursal"
+                className="ml-0.5 rounded-full p-0.5 hover:bg-foreground/10 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                ×
+              </button>
+            </span>
+          )}
 
           <span className="ml-auto text-sm text-muted-foreground">
             <span className="font-medium text-foreground tabular-nums">{total}</span> registros

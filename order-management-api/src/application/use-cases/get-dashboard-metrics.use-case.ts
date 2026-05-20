@@ -23,6 +23,12 @@ export interface DashboardMetrics {
     usuario: string;
     total: number;
   }>;
+  readonly porSucursal: Array<{
+    sucursal: string;
+    activos: number;
+    entregados: number;
+    total: number;
+  }>;
 }
 
 export interface GetDashboardMetricsDto {
@@ -57,6 +63,13 @@ interface TopUsuarioRow {
   total: bigint;
 }
 
+interface SucursalRow {
+  sucursal: string;
+  activos: bigint;
+  entregados: bigint;
+  total: bigint;
+}
+
 function toInt(v: bigint | number | null | undefined): number {
   if (v === null || v === undefined) return 0;
   return typeof v === 'bigint' ? Number(v) : v;
@@ -83,7 +96,7 @@ export class GetDashboardMetricsUseCase {
   async execute(dto: GetDashboardMetricsDto): Promise<DashboardMetrics> {
     const months = dto.months;
 
-    const [totalsRows, criticidadRows, atendidosRows, creadosRows, entregadosRows, topRows] =
+    const [totalsRows, criticidadRows, atendidosRows, creadosRows, entregadosRows, topRows, sucursalRows] =
       await Promise.all([
         this.prisma.$queryRaw<TotalsRow[]>(Prisma.sql`
           WITH ultimo_estado AS (
@@ -167,6 +180,23 @@ export class GetDashboardMetricsUseCase {
           ORDER BY total DESC, usuario ASC
           LIMIT 10
         `),
+
+        this.prisma.$queryRaw<SucursalRow[]>(Prisma.sql`
+          WITH ultimo_estado AS (
+            SELECT DISTINCT ON (pedido_id) pedido_id, estado
+            FROM estados_pedido
+            ORDER BY pedido_id, created_at DESC, id DESC
+          )
+          SELECT
+            COALESCE(p.sucursal, 'Sin Sucursal') AS sucursal,
+            COUNT(*) FILTER (WHERE COALESCE(ue.estado, 'ACTIVO') = 'ACTIVO')::bigint AS activos,
+            COUNT(*) FILTER (WHERE ue.estado = 'ENTREGADO')::bigint AS entregados,
+            COUNT(*)::bigint AS total
+          FROM pedidos p
+          LEFT JOIN ultimo_estado ue ON ue.pedido_id = p.id
+          GROUP BY COALESCE(p.sucursal, 'Sin Sucursal')
+          ORDER BY activos DESC, sucursal ASC
+        `),
       ]);
 
     const totalsRow = totalsRows[0] ?? { activos: 0n, entregados: 0n, total: 0n };
@@ -207,6 +237,12 @@ export class GetDashboardMetricsUseCase {
       },
       mensual,
       topUsuarios: topRows.map(r => ({ usuario: r.usuario, total: toInt(r.total) })),
+      porSucursal: sucursalRows.map(r => ({
+        sucursal: r.sucursal,
+        activos: toInt(r.activos),
+        entregados: toInt(r.entregados),
+        total: toInt(r.total),
+      })),
     };
   }
 }

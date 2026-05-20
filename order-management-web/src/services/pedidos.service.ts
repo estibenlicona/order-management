@@ -19,6 +19,7 @@ export interface GetAllParams {
   search?: string;
   orderBy?: 'createdAt_desc' | 'fecha_asc' | 'fecha_desc' | 'pendiente_desc' | 'pendiente_asc';
   filtroEstado?: string;
+  sucursal?: string;
 }
 
 export const pedidosService = {
@@ -35,6 +36,9 @@ export const pedidosService = {
     }
     if (params.filtroEstado !== undefined) {
       qs.set('filtroEstado', params.filtroEstado);
+    }
+    if (params.sucursal !== undefined && params.sucursal !== '') {
+      qs.set('sucursal', params.sucursal);
     }
     const res = await apiClient.get<BackendResponse<PaginatedPedidosData>>(`/pedidos?${qs.toString()}`);
     return res.data;
