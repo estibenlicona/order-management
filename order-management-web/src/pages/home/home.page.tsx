@@ -132,7 +132,7 @@ export function HomePage(): JSX.Element {
               <h2 className="text-sm font-semibold text-foreground">Por sucursal</h2>
               <span className="text-xs text-muted-foreground">Clic en barra para ver detalle</span>
             </div>
-            <SucursalChart data={data.porSucursal} />
+            <SucursalChart data={data.porSucursal ?? []} />
           </Card>
         </div>
       ) : null}
